@@ -85,7 +85,7 @@ void main()
   enableWDTInterrupts();      /**< enable periodic interrupt */
   or_sr(0x8);	              /**< GIE (enable interrupts) */
 
-  clearScreen(COLOR_BLUE);
+  clearScreen(COLOR_BLACK);
   while (1) {			/* forever */
     if (redrawScreen) {
       redrawScreen = 0;
@@ -101,7 +101,7 @@ char rowLocations[] = {0,0,0,0,0,0};
 char colLocations[] = {15,35,55,75,95,115};
 int snowFlakes = 0;
 char pixelSize = 2;
-int color = COLOR_WHITE;
+int color = COLOR_BLACK;
 int sw = 0;
     
 void
@@ -120,7 +120,7 @@ update_shape()
     sw = 2;
   if (four) {
     sw = 3;
-    drawString11x16(4,100, "LET IT SNO", COLOR_BLACK, COLOR_BLUE);
+    drawString11x16(4,100, "WIN BREAK!", COLOR_WHITE, COLOR_BLACK);
   }
 
   jumpTable(sw);
@@ -154,11 +154,11 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
       drawPixel(centerC-col, centerR+row, color);
       drawPixel(centerC-col, centerR-row, color);
     }
-    drawPixel(centerC-curr+1, centerR-row-1, COLOR_BLUE);
-    drawPixel(centerC-curr+1, centerR-row-2, COLOR_BLUE);
-    drawPixel(centerC-curr+1, centerR-row-3, COLOR_BLUE);
-    drawPixel(centerC-curr+1, centerR-row-4, COLOR_BLUE);
-    drawPixel(centerC-curr+1, centerR-row-5, COLOR_BLUE);
+    drawPixel(centerC-curr+1, centerR-row-1, COLOR_BLACK);
+    drawPixel(centerC-curr+1, centerR-row-2, COLOR_BLACK);
+    drawPixel(centerC-curr+1, centerR-row-3, COLOR_BLACK);
+    drawPixel(centerC-curr+1, centerR-row-4, COLOR_BLACK);
+    drawPixel(centerC-curr+1, centerR-row-5, COLOR_BLACK);
     prev = curr;
     curr += pixelSize;
     for (char col = prev; col < curr; col ++) {
@@ -168,16 +168,16 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 	drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row-1, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row-1, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row-2, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row-2, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row-3, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row-3, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row-1, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row-1, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row-2, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row-2, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row-3, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row-3, COLOR_BLACK);
       }
     }
     prev = curr;
@@ -189,10 +189,10 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 	drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
       }
     }
     prev = curr;
@@ -204,12 +204,12 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
         drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row-1, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row-1, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row-1, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row-1, COLOR_BLACK);
       }
     }
     prev = curr;
@@ -221,10 +221,10 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 	drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
       }
     }
     prev = curr;
@@ -236,10 +236,10 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 	drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
       }
     }
     prev = curr;
@@ -251,10 +251,10 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 	drawPixel(centerC-col, centerR+row, color);
 	drawPixel(centerC-col, centerR-row, color);
       } else {
-	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
-	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC+col, centerR-row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR+row, COLOR_BLACK);
+	drawPixel(centerC-col, centerR-row, COLOR_BLACK);
       }
     }
   }
