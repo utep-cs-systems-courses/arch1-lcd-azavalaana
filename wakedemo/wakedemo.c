@@ -2,6 +2,8 @@
 #include <libTimer.h>
 #include "lcdutils.h"
 #include "lcddraw.h"
+#include "buzzer.h"
+#include "wakedemo.h"
 
 // WARNING: LCD DISPLAY USES P1.0.  Do not touch!!! 
 
@@ -43,7 +45,6 @@ switch_interrupt_handler()
   switches = ~p2val & SWITCHES;
 }
 
-
 // axis zero for col, axis 1 for row
 short drawPos[2] = {10,10}, controlPos[2] = {10,10};
 short velocity[2] = {3,8}, limits[2] = {screenWidth-36, screenHeight-8};
@@ -53,8 +54,12 @@ u_int controlFontColor = COLOR_GREEN;
 
 void wdt_c_handler()
 {
+  if (switches & SW2) {
+    songOne();
+  } else {
+    buzzerOff();
+  }
   static int secCount = 0;
-
   secCount ++;
   if (secCount >= 25) {		/* 10/sec */
     secCount = 0;
@@ -63,6 +68,9 @@ void wdt_c_handler()
 }
   
 void update_shape();
+void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color);
+void updateLocations();
+void addSnowFlake();
 
 void main()
 {
@@ -72,10 +80,11 @@ void main()
   configureClocks();
   lcd_init();
   switch_init();
+  buzzer_init();
   
   enableWDTInterrupts();      /**< enable periodic interrupt */
   or_sr(0x8);	              /**< GIE (enable interrupts) */
-  
+
   clearScreen(COLOR_BLUE);
   while (1) {			/* forever */
     if (redrawScreen) {
@@ -88,33 +97,168 @@ void main()
   }
 }
 
-    
+char rowLocations[] = {0,0,0,0,0,0};
+char colLocations[] = {15,35,55,75,95,115};
+int snowFlakes = 0;
+char pixelSize = 2;
+int color = COLOR_WHITE;
+int sw = 0;
     
 void
 update_shape()
 {
-  static unsigned char row = screenHeight / 2, col = screenWidth / 2;
-  static char blue = 31, green = 0, red = 31;
-  static unsigned char step = 0;
-  if (switches & SW4) return;
-  if (step <= 60) {
-    int startCol = col - step;
-    int endCol = col + step;
-    int width = 1 + endCol - startCol;
-    // a color in this BGR encoding is BBBB BGGG GGGR RRRR
-    unsigned int color = (blue << 11) | (green << 5) | red;
-    fillRectangle(startCol, row+step, width, 1, color);
-    fillRectangle(startCol, row-step, width, 1, color);
-    if (switches & SW3) green = (green + 1) % 64;
-    if (switches & SW2) blue = (blue + 2) % 32;
-    if (switches & SW1) red = (red - 3) % 32;
-    step ++;
-  } else {
-     clearScreen(COLOR_BLUE);
-     step = 0;
+  int four = switches & SW4;
+  int one = switches & SW1;
+  int two = switches & SW2;
+  int three = switches & SW3;
+
+  if (one)
+    sw = 1;
+  if (two)
+    sw = 0;
+  if (three)
+    sw = 2;
+  if (four) {
+    sw = 3;
+    drawString11x16(4,100, "LET IT SNO", COLOR_BLACK, COLOR_BLUE);
+  }
+
+  jumpTable(sw);
+  sw = 0;
+  
+  for (int i = 0; i < snowFlakes; i++) {
+    drawSnowFlake(pixelSize, rowLocations[i], colLocations[i], color);
+    updateLocations();
   }
 }
 
+void updateLocations()
+{
+  for (int i = 0; i < snowFlakes; i++) {
+      rowLocations[i]++;
+      if (rowLocations[i] >= screenHeight) {
+	rowLocations[i] = 0;
+      }
+  }
+}
+
+void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
+{
+  char dim = 6;
+  for (char row = 0; row <= (pixelSize/2)+(dim*pixelSize)-1; row++) {
+    char prev = 0;
+    char curr = pixelSize/2;
+    for (char col = prev; col < curr; col++) {
+      drawPixel(centerC+col, centerR+row, color);
+      drawPixel(centerC+col, centerR-row, color);
+      drawPixel(centerC-col, centerR+row, color);
+      drawPixel(centerC-col, centerR-row, color);
+    }
+    drawPixel(centerC-curr+1, centerR-row-1, COLOR_BLUE);
+    drawPixel(centerC-curr+1, centerR-row-2, COLOR_BLUE);
+    drawPixel(centerC-curr+1, centerR-row-3, COLOR_BLUE);
+    drawPixel(centerC-curr+1, centerR-row-4, COLOR_BLUE);
+    drawPixel(centerC-curr+1, centerR-row-5, COLOR_BLUE);
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col ++) {
+      if (row < (pixelSize+(pixelSize/2)) || (row > ((pixelSize/2)+(pixelSize*4)) && row < ((pixelSize/2)+(pixelSize*5)))) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+	drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row-1, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row-1, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row-2, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row-2, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row-3, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row-3, COLOR_BLUE);
+      }
+    }
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col++) {
+      if (row < (pixelSize/2) || (row > ((pixelSize/2)+(pixelSize)) && row < ((pixelSize/2)+(pixelSize*2)))) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+	drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+      }
+    }
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col++) {
+      if (row < (pixelSize/2) || (row > ((pixelSize/2)+(pixelSize*2)) && row < ((pixelSize/2)+(pixelSize*4)))) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+        drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row-1, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row-1, COLOR_BLUE);
+      }
+    }
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col++) {
+      if (row < (pixelSize/2) || (row > ((pixelSize/2)+(pixelSize*2)) && row < ((pixelSize/2)+(pixelSize*3)))) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+	drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+      }
+    }
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col++) {
+      if (row < ((pixelSize/2)+(pixelSize))) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+	drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+      }
+    }
+    prev = curr;
+    curr += pixelSize;
+    for (char col = prev; col < curr; col++) {
+      if (row < (pixelSize/2)) {
+	drawPixel(centerC+col, centerR+row, color);
+	drawPixel(centerC+col, centerR-row, color);
+	drawPixel(centerC-col, centerR+row, color);
+	drawPixel(centerC-col, centerR-row, color);
+      } else {
+	drawPixel(centerC+col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC+col, centerR-row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR+row, COLOR_BLUE);
+	drawPixel(centerC-col, centerR-row, COLOR_BLUE);
+      }
+    }
+  }
+}
 
 /* Switch on S2 */
 void
