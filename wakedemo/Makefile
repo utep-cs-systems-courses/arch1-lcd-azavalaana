@@ -7,14 +7,25 @@ LDFLAGS		= -L../lib -L/opt/ti/msp430_gcc/include/
 CC              = msp430-elf-gcc
 AS              = msp430-elf-gcc -mmcu=${CPU} -c
 
-all:wakedemo.elf
+all:wakedemoC.elf wakedemoAssy.elf
 
 #additional rules for files
-wakedemo.elf: ${COMMON_OBJECTS} wakedemo.o wdt_handler.o
+wakedemoC.elf: ${COMMON_OBJECTS} wakedemo.o wdt_handler.o buzzer.o switch-c.o 
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd 
+wakedemoAssy.elf: ${COMMON_OBJECTS} wakedemo.o wdt_handler.o buzzer.o switch-s.o 
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd 
 
-load: wakedemo.elf
+
+loadC: wakedemoC.elf
+	msp430loader.sh $^
+loadAssy: wakedemoAssy.elf
 	msp430loader.sh $^
 
 clean:
 	rm -f *.o *.elf
+
+switchC.o: wakedemo.h
+
+switchAssy.o: wakedemo.h
+
+wakedemo.o: wakedemo.h
