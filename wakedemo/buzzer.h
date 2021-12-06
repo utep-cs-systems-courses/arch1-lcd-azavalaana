@@ -20,4 +20,5 @@ void buzzer_init();
 void buzzer_set_period(short cycles) ;
 void buzzerOff();
 void songOne();
+void songTwo();
 #endif // included

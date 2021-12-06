@@ -50,13 +50,15 @@ short drawPos[2] = {10,10}, controlPos[2] = {10,10};
 short velocity[2] = {3,8}, limits[2] = {screenWidth-36, screenHeight-8};
 
 short redrawScreen = 1;
-u_int controlFontColor = COLOR_GREEN;
+u_int controlFontColor = COLOR_BLUE;
 
 void wdt_c_handler()
 {
-  if (switches & SW2) {
+  if (switches & SW1) {
     songOne();
-  } else {
+  } else if (switches & SW3){
+      songTwo();
+} else {
     buzzerOff();
   }
   static int secCount = 0;
@@ -98,29 +100,30 @@ void main()
 }
 
 char rowLocations[] = {0,0,0,0,0,0};
-char colLocations[] = {15,35,55,75,95,115};
+char colLocations[] = {15,40,65,90,115,140};
 int snowFlakes = 0;
 char pixelSize = 2;
-int color = COLOR_BLACK;
+int color = COLOR_WHITE;
 int sw = 0;
     
 void
 update_shape()
 {
-  int four = switches & SW4;
   int one = switches & SW1;
   int two = switches & SW2;
   int three = switches & SW3;
+  int four = switches & SW4;
 
   if (one)
-    sw = 1;
-  if (two)
     sw = 0;
+  if (two)
+    sw = 1;
   if (three)
     sw = 2;
   if (four) {
     sw = 3;
     drawString11x16(4,100, "WIN BREAK!", COLOR_WHITE, COLOR_BLACK);
+    color = COLOR_WHITE;
   }
 
   jumpTable(sw);
@@ -136,8 +139,8 @@ void updateLocations()
 {
   for (int i = 0; i < snowFlakes; i++) {
       rowLocations[i]++;
-      if (rowLocations[i] >= screenHeight) {
-	rowLocations[i] = 0;
+      if (rowLocations[i] >= screenHeight+16) {
+        rowLocations[i] = 0;
       }
   }
 }
@@ -263,8 +266,8 @@ void drawSnowFlake(char pixelSize, char centerR, char centerC, u_int color)
 /* Switch on S2 */
 void
 __interrupt_vec(PORT2_VECTOR) Port_2(){
-  if (P2IFG & SWITCHES) {	      /* did a button cause this interrupt? */
-    P2IFG &= ~SWITCHES;		      /* clear pending sw interrupts */
-    switch_interrupt_handler();	/* single handler for all switches */
+  if (P2IFG & SWITCHES) {
+    P2IFG &= ~SWITCHES;	
+    switch_interrupt_handler();
   }
 }
